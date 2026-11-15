@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Swarnajiwa · Jabodance</title>
+  <meta name="description" content="Swarnajiwa by Jabodance: sonic meditations for a golden soul. Breathe, touch seven points and play gamelan-inspired tones.">
+  <meta name="theme-color" content="#050816">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="stage" aria-label="Meditation figure with seven points. Tap a point to chime, hold to hum. Keys 1 to 7 also play."></canvas>
+
+  <!-- Header -->
+  <header class="top">
+    <div class="brand">
+      <span class="brand-kicker">Jabodance</span>
+      <span class="brand-name">Swarnajiwa</span>
+    </div>
+    <div class="top-actions">
+      <div class="seg" role="group" aria-label="Figure">
+        <button class="seg-btn" data-figure="male" aria-label="Male figure">M</button>
+        <button class="seg-btn" data-figure="female" aria-label="Female figure">F</button>
+      </div>
+      <button class="icon-btn" id="btn-about" aria-label="About Swarnajiwa">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r="0.9" class="fill"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Status pills -->
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <!-- Journey card -->
+  <section class="journey-card" id="journey-card" hidden>
+    <div class="jc-top">
+      <span class="jc-step" id="jc-step">1 / 7</span>
+      <button class="link-btn" id="jc-end">End</button>
+    </div>
+    <h2 class="jc-name" id="jc-name">Muladhara</h2>
+    <p class="jc-sub" id="jc-sub">Root · Grounding</p>
+    <p class="jc-guide" id="jc-guide"></p>
+    <div class="jc-bar"><span id="jc-bar"></span></div>
+  </section>
+
+  <!-- Gending now playing -->
+  <section class="journey-card gending-now" id="gending-card" hidden>
+    <div class="jc-top">
+      <span class="jc-step">GENDING</span>
+      <button class="link-btn" id="gc-stop">Stop</button>
+    </div>
+    <h2 class="jc-name" id="gc-name">Calm</h2>
+    <p class="jc-sub" id="gc-sub">Tenang</p>
+    <p class="gc-breath" id="gc-breath"></p>
+    <div class="gc-dots" id="gc-dots"></div>
+    <div class="jc-bar"><span id="gc-bar"></span></div>
+    <p class="gc-time" id="gc-time"></p>
+  </section>
+
+  <!-- Breath guide -->
+  <div class="breath-cue" id="breath-cue" hidden>
+    <span class="bc-word" id="bc-word">Inhale</span>
+    <span class="bc-count" id="bc-count">4</span>
+  </div>
+
+  <!-- Bottom panel -->
+  <nav class="panel" id="panel">
+    <div class="elements" role="radiogroup" aria-label="Sound element">
+      <button class="el" data-el="earth" role="radio"><svg viewBox="0 0 24 24"><path d="M4 6h16L12 20z"/><path d="M6.5 11h11"/></svg><b>Earth</b><i>Gong</i></button>
+      <button class="el" data-el="water" role="radio"><svg viewBox="0 0 24 24"><path d="M4 6h16L12 20z"/></svg><b>Water</b><i>Gender</i></button>
+      <button class="el" data-el="fire" role="radio"><svg viewBox="0 0 24 24"><path d="M4 18h16L12 4z"/></svg><b>Fire</b><i>Bonang</i></button>
+      <button class="el" data-el="wind" role="radio"><svg viewBox="0 0 24 24"><path d="M4 18h16L12 4z"/><path d="M6.5 13h11"/></svg><b>Wind</b><i>Suling</i></button>
+      <button class="el" data-el="ether" role="radio"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.6" class="fill"/></svg><b>Akasha</b><i>Genta</i></button>
+    </div>
+    <div class="tools">
+      <button class="tool" data-sheet="gending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="1.2" class="fill"/></svg><span>Gending</span></button>
+      <button class="tool" data-sheet="breath"><svg viewBox="0 0 24 24"><path d="M3 12c3 0 3-5 6-5s3 10 6 10 3-5 6-5"/></svg><span>Breathe</span></button>
+      <button class="tool" data-sheet="journey"><svg viewBox="0 0 24 24"><circle cx="12" cy="20" r="1.6"/><circle cx="12" cy="14" r="1.6"/><circle cx="12" cy="8" r="1.6"/><path d="M12 2.5v1.5M7 5l1 1M17 5l-1 1"/></svg><span>Journey</span></button>
+      <button class="tool" data-sheet="loop"><svg viewBox="0 0 24 24"><path d="M17 7a7 7 0 1 0 2 5"/><path d="M19 4v4h-4"/><circle cx="12" cy="12" r="2.2" class="fill"/></svg><span>Looper</span></button>
+      <button class="tool" data-sheet="timer"><svg viewBox="0 0 24 24"><path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/></svg><span>Timer</span></button>
+      <button class="tool" data-sheet="card"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span>Aura Card</span></button>
+    </div>
+  </nav>
+
+  <!-- Sheets -->
+  <section class="sheet tall" id="sheet-gending" hidden>
+    <div class="sheet-head"><h3>Gending</h3><button class="close" aria-label="Close">×</button></div>
+    <p class="sheet-note">Ready-made compositions for how you want to feel. Sit back, breathe, or play along on the points.</p>
+    <div class="gendings" id="gending-list"></div>
+    <div class="g-foot">
+      <div class="choices three" id="gending-mins">
+        <button class="choice sm" data-min="3"><b>3</b><i>min</i></button>
+        <button class="choice sm" data-min="5"><b>5</b><i>min</i></button>
+        <button class="choice sm" data-min="10"><b>10</b><i>min</i></button>
+      </div>
+      <label class="row slim"><span>Guide my breath too</span><input type="checkbox" id="gending-breath" class="switch" checked></label>
+      <button class="primary" id="gending-play">Play Calm</button>
+    </div>
+  </section>
+
+  <section class="sheet" id="sheet-breath" hidden>
+    <div class="sheet-head"><h3>Breath Guide</h3><button class="close" aria-label="Close">×</button></div>
+    <p class="sheet-note">Follow the aura as it swells and softens. The drone breathes with you.</p>
+    <div class="choices four" id="breath-choices"></div>
+    <label class="row slim"><span>Hum along on the exhale<small>A soft tone sounds on the last point you touched. Hum with it, "mmm".</small></span><input type="checkbox" id="breath-hum" class="switch"></label>
+    <p class="sheet-note small" id="breath-note" hidden>This pattern holds the breath. Skip the holds if you feel dizzy, are pregnant, or have a heart or lung condition.</p>
+    <button class="primary" id="breath-toggle">Start breathing</button>
+  </section>
+
+  <section class="sheet" id="sheet-journey" hidden>
+    <div class="sheet-head"><h3>Chakra Journey</h3><button class="close" aria-label="Close">×</button></div>
+    <p class="sheet-note">A guided ascent from Root to Crown. Each centre glows and chimes softly; tap along whenever you like.</p>
+    <div class="choices" id="journey-choices">
+      <button class="choice" data-sec="30"><b>Short</b><i>30 s each · 3.5 min</i></button>
+      <button class="choice" data-sec="60"><b>Standard</b><i>1 min each · 7 min</i></button>
+      <button class="choice" data-sec="90"><b>Deep</b><i>90 s each · 10.5 min</i></button>
+    </div>
+    <button class="primary" id="journey-start">Begin journey</button>
+  </section>
+
+  <section class="sheet" id="sheet-loop" hidden>
+    <div class="sheet-head"><h3>Aura Looper</h3><button class="close" aria-label="Close">×</button></div>
+    <div class="loop-row">
+      <button class="rec" id="loop-rec" aria-label="Record layer"><span></span></button>
+      <div class="loop-info">
+        <div class="loop-title" id="loop-title">Tap record, then play the chakras</div>
+        <div class="loop-layers" id="loop-layers"></div>
+        <div class="loop-bar"><span id="loop-bar"></span></div>
+      </div>
+    </div>
+    <div class="loop-actions">
+      <button class="ghost" id="loop-play" disabled>Play</button>
+      <button class="ghost" id="loop-undo" disabled>Undo layer</button>
+      <button class="ghost" id="loop-clear" disabled>Clear</button>
+      <button class="ghost" id="loop-save" disabled>Save audio</button>
+    </div>
+  </section>
+
+  <section class="sheet" id="sheet-timer" hidden>
+    <div class="sheet-head"><h3>Session Timer</h3><button class="close" aria-label="Close">×</button></div>
+    <p class="sheet-note">A bell opens and closes the session, then the sound fades gently away.</p>
+    <div class="choices wrap" id="timer-choices">
+      <button class="choice sm" data-min="0"><b>Off</b></button>
+      <button class="choice sm" data-min="5"><b>5</b><i>min</i></button>
+      <button class="choice sm" data-min="10"><b>10</b><i>min</i></button>
+      <button class="choice sm" data-min="15"><b>15</b><i>min</i></button>
+      <button class="choice sm" data-min="20"><b>20</b><i>min</i></button>
+      <button class="choice sm" data-min="30"><b>30</b><i>min</i></button>
+    </div>
+  </section>
+
+  <section class="sheet" id="sheet-card" hidden>
+    <div class="sheet-head"><h3>Your Aura Card</h3><button class="close" aria-label="Close">×</button></div>
+    <div id="card-mood" hidden>
+      <p class="mood-q">How do you feel now?</p>
+      <div class="moods small" id="card-moods"></div>
+    </div>
+    <div class="card-preview"><img id="card-img" alt="Aura card preview"></div>
+    <div class="loop-actions">
+      <button class="ghost" id="card-save">Save image</button>
+      <button class="primary sm" id="card-share">Share</button>
+    </div>
+    <p class="sheet-note small" id="card-note"></p>
+  </section>
+
+  <section class="sheet" id="sheet-settings" hidden>
+    <div class="sheet-head"><h3>Settings</h3><button class="close" aria-label="Close">×</button></div>
+    <label class="row"><span>Ambient drone</span><input type="checkbox" id="set-drone" class="switch"></label>
+    <label class="row"><span>Drone level</span><input type="range" id="set-drone-level" min="0" max="1" step="0.01"></label>
+    <label class="row"><span>Space (reverb)</span><input type="range" id="set-reverb" min="0" max="1" step="0.01"></label>
+    <label class="row"><span>Show point names</span><input type="checkbox" id="set-labels" class="switch"></label>
+    <label class="row"><span>Reduce motion</span><input type="checkbox" id="set-motion" class="switch"></label>
+    <p class="sheet-note small">Keyboard: keys 1–7 play Root to Crown. Hold a key to hum.</p>
+  </section>
+
+  <section class="sheet tall" id="sheet-about" hidden>
+    <div class="sheet-head"><h3>About Swarnajiwa</h3><button class="close" aria-label="Close">×</button></div>
+    <div class="about">
+      <p class="lead"><em>Swarna</em> means gold, <em>jiwa</em> means soul. Just as Swarnadwipa, the old name of Sumatra, means “island of gold”, Swarnajiwa means “golden soul”: a few minutes a day to breathe, listen and return to the gold within.</p>
+
+      <h4>The body as a small universe</h4>
+      <p>In Javanese and Balinese thought, the body is <em>Bhuwana Alit</em>, the small world, a mirror of <em>Bhuwana Agung</em>, the great one. The figure at the centre of the cosmos is you.</p>
+
+      <h4>Four companions, one centre</h4>
+      <p>Javanese philosophy speaks of <em>Sedulur Papat Lima Pancer</em>: four companions born with us, linked to water, earth, fire and air, around a fifth at the centre, the self. The five sounds follow this map. Earth, Water, Fire and Wind are the four. Akasha, the open sky, is the <em>pancer</em>: your own still centre.</p>
+
+      <h4>Seven points, seven tones</h4>
+      <p>Each point has a familiar name, a quality to rest on, and a tone of the seven-note <em>pelog</em> gamelan scale, from <b>Ji</b> at the base to <b>Pi</b> above the crown.</p>
+      <div class="points" id="about-points"></div>
+
+      <h4>Sound, colour and direction</h4>
+      <p>Long before apps, Balinese palm-leaf manuscripts on gamelan, such as the <em>Lontar Prakempa</em>, linked tones with colours and the directions of the world. Swarnajiwa is a modern echo of that idea.</p>
+
+      <h4>Our own embat</h4>
+      <p>No two gamelan are tuned alike; each set has its own <em>embat</em>, its own character. Swarnajiwa has one too. Its Ji sits at 136 Hz, close to the average Ji measured on Javanese kempul gongs in Yogyakarta. There are no "healing frequencies" here, just tones chosen to feel warm and calm.</p>
+
+      <h4>Care notes</h4>
+      <ul>
+        <li>Swarnajiwa is a self-care companion, not a substitute for professional help or treatment.</li>
+        <li>If anything feels uncomfortable, stop, open your eyes and breathe normally.</li>
+        <li>Start with the volume low. Gentle is enough.</li>
+        <li>Skip breath holds if you feel dizzy, are pregnant, or have a heart or lung condition.</li>
+      </ul>
+      <p class="sheet-note small">Made by Jabodance, with respect for the gamelan traditions of Java and Bali.</p>
+    </div>
+  </section>
+
+  <!-- Mood check -->
+  <div class="overlay mood" id="mood" hidden>
+    <div class="intro-inner">
+      <p class="kicker" id="mood-kicker">Before we begin</p>
+      <h1 class="h-mid" id="mood-title">How do you feel right now?</h1>
+      <div class="moods" id="mood-choices"></div>
+      <button class="link-btn" id="mood-skip">Skip</button>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="overlay intro" id="intro">
+    <div class="intro-inner">
+      <p class="kicker">Jabodance</p>
+      <h1>Swarnajiwa</h1>
+      <p class="tagline">Sonic meditations for a golden soul</p>
+      <div class="choose">
+        <button class="pick" data-figure="male">
+          <svg viewBox="0 0 60 60"><circle cx="30" cy="17" r="8"/><path d="M14 46c0-12 6-20 16-20s16 8 16 20zM6 50c8-6 40-6 48 0"/></svg>
+          <span>Male</span>
+        </button>
+        <button class="pick" data-figure="female">
+          <svg viewBox="0 0 60 60"><circle cx="30" cy="9" r="3.5"/><circle cx="30" cy="18" r="7.5"/><path d="M16 46c0-12 5-20 14-20s14 8 14 20zM6 50c8-6 40-6 48 0"/></svg>
+          <span>Female</span>
+        </button>
+      </div>
+      <button class="primary big" id="begin">Begin</button>
+      <p class="hint"><svg viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/></svg> Best experienced with headphones</p>
+      <p class="hint dim">Tap a point to chime · Hold to hum · Slide to strum</p>
+      <p class="hint dim">A self-care companion, not a substitute for professional help.</p>
+    </div>
+  </div>
+
+  <!-- Session complete -->
+  <div class="overlay end" id="end" hidden>
+    <div class="intro-inner">
+      <p class="kicker">Session complete</p>
+      <h1 class="h-mid" id="end-title">Be still a moment.</h1>
+      <p class="tagline" id="end-sub"></p>
+      <p class="mood-q" id="end-mood-q">How do you feel now?</p>
+      <div class="moods small" id="end-moods"></div>
+      <button class="primary" id="end-card">Create Aura Card</button>
+      <button class="link-btn" id="end-continue">Continue playing</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
